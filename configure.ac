@@ -2462,7 +2462,7 @@ AC_LIBTOOL_WIN32_DLL
 
 AC_SUBST(LIBGMP_DLL,0)
 case $host in
-  *-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-os2*)
+  *-*-cygwin* | *-*-mingw* | *-*-pw32*)
     # By default, build only static.
     if test -z "$enable_shared"; then
       enable_shared=no
@@ -2504,6 +2504,9 @@ Use "--disable-static --enable-shared" to build just a DLL.])
       LIBGMPXX_LDFLAGS="$LIBGMP_LDFLAGS -Wl,--output-def,.libs/libgmpxx-3.dll.def"
       LIBGMP_DLL=1
     fi
+    ;;
+  *-*-os2*)
+    GMP_LDFLAGS="$GMP_LDFLAGS -no-undefined"
     ;;
 esac
 
