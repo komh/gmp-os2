@@ -2893,6 +2893,35 @@ See \`config.log' for more details" "$LINENO" 5; }
   fi
 done
 
+if test -n "$OS2_SHELL"; then
+  # Backslashes into forward slashes:
+  # The following OS/2 specific code is performed AFTER config.site
+  # has been loaded to allow users to change their environment there.
+  # This strange code is necessary to deal with handling of backslashes by
+  # ksh.
+  ac_save_IFS="$IFS"
+  IFS="\\"
+  ac_TEMP_PATH=
+  for ac_dir in $PATH; do
+    IFS=$ac_save_IFS
+    if test -z "$ac_TEMP_PATH"; then
+      ac_TEMP_PATH="$ac_dir"
+    else
+      ac_TEMP_PATH="$ac_TEMP_PATH/$ac_dir"
+    fi
+  done
+  export PATH="$ac_TEMP_PATH"
+  unset ac_TEMP_PATH
+
+  # add .exe to ac_executable_extensions
+  if test -z "$ac_executable_extensions"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: ac_executable_extensions not set, assuming .exe" >&5
+$as_echo "$as_me: WARNING: ac_executable_extensions not set, assuming .exe" >&2;}
+  fi
+  ac_executable_extensions="$ac_executable_extensions .exe"
+  export ac_executable_extensions
+fi
+
 if test -r "$cache_file"; then
   # Some versions of bash will fail to source /dev/null (special files
   # actually), so we avoid doing that.  DJGPP emulates it as a regular file.
@@ -12228,7 +12257,7 @@ test -z "$OBJDUMP" && OBJDUMP=objdump
 LIBGMP_DLL=0
 
 case $host in
-  *-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-os2*)
+  *-*-cygwin* | *-*-mingw* | *-*-pw32*)
     # By default, build only static.
     if test -z "$enable_shared"; then
       enable_shared=no
@@ -12270,6 +12299,9 @@ Use \"--disable-static --enable-shared\" to build just a DLL." "$LINENO" 5
       LIBGMPXX_LDFLAGS="$LIBGMP_LDFLAGS -Wl,--output-def,.libs/libgmpxx-3.dll.def"
       LIBGMP_DLL=1
     fi
+    ;;
+  *-*-os2*)
+    GMP_LDFLAGS="$GMP_LDFLAGS -no-undefined"
     ;;
 esac
 
@@ -16926,6 +16958,7 @@ _LT_EOF
 	emximp -o $lib $output_objdir/$libname.def'
       old_archive_From_new_cmds='emximp -o $output_objdir/${libname}_dll.a $output_objdir/$libname.def'
       enable_shared_with_static_runtimes=yes
+      file_list_spec='@'
       ;;
 
     interix[3-9]*)
@@ -17780,6 +17813,7 @@ $as_echo "$lt_cv_irix_exported_symbol" >&6; }
 	emximp -o $lib $output_objdir/$libname.def'
       old_archive_From_new_cmds='emximp -o $output_objdir/${libname}_dll.a $output_objdir/$libname.def'
       enable_shared_with_static_runtimes=yes
+      file_list_spec='@'
       ;;
 
     osf3*)
@@ -20645,6 +20679,7 @@ fi
 	  emximp -o $lib $output_objdir/$libname.def'
 	old_archive_From_new_cmds_CXX='emximp -o $output_objdir/${libname}_dll.a $output_objdir/$libname.def'
 	enable_shared_with_static_runtimes_CXX=yes
+	file_list_spec_CXX='@'
 	;;
 
       dgux*)
@@ -26967,7 +27002,11 @@ if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$gmp_assemble\""; } >&5
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
   cat conftest.out >&5
-  gmp_cv_asm_x86_coff_type=yes
+  if test -z "${host_os##os2*}"; then
+    gmp_cv_asm_x86_coff_type=no
+  else
+    gmp_cv_asm_x86_coff_type=yes
+  fi
 else
   cat conftest.out >&5
   echo "configure: failed program was:" >&5
