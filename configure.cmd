@@ -1,3 +1,3 @@
 extproc sh
 
-./configure --prefix=/usr --disable-shared --enable-static --enable-fat "$@"
+./configure --disable-shared --enable-static --enable-fat "$@"
